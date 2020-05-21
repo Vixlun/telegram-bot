@@ -1,2 +1,2 @@
-# telegram_bot_why
-Telegram bot, which ask you WHY?
+# Telegram bot 'Why?'
+Telegram bot, which just ask you - Why?
