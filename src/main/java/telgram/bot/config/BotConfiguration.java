@@ -1,29 +1,29 @@
 package telgram.bot.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
-import telgram.bot.demo.TestBot;
+import telgram.bot.demo.TelegramWhyBot;
 
 import javax.annotation.PostConstruct;
 
 @Slf4j
 @Configuration
 public class BotConfiguration {
-    @Value("${main.telegram.id}")
-    private Long mainTelegramId;
-    @Value("${bot.username}")
-    private String botUserName;
-    @Value("${bot.token}")
-    private String botToken;
+    private final TelegramWhyBot telegramBot;
+
+    @Autowired
+    public BotConfiguration(TelegramWhyBot telegramBot) {
+        this.telegramBot = telegramBot;
+    }
 
     @PostConstruct
     void initMethod() {
         log.info("Start registering telegram api");
         TelegramBotsApi telegramApi = new TelegramBotsApi();
         try {
-            telegramApi.registerBot(new TestBot(botUserName, botToken));
+            telegramApi.registerBot(telegramBot);
         } catch (Exception ex) {
             log.error("", ex);
         }
