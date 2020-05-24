@@ -26,6 +26,7 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingBot impleme
     private String botUserName;
     @NonNull
     private Long mainTelegramId;
+    private final String COMMAND_PREFIX = "/";
 
     protected Consumer<MessageContext> actionForTextRequest;
     protected Consumer<BadResponse> actionForBadRequest;
@@ -64,6 +65,7 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingBot impleme
                 if (update.getMessage().isCommand()) {
                     executeCommand(update);
                 } else {
+                    if(update.getMessage().getText().startsWith(COMMAND_PREFIX)) throw new CommandNotFound("Can't find command");
                     log.debug("User = '{}' wrote text: {}", update.getMessage().getChat().getUserName(), update.getMessage().getText());
                     actionForTextRequest.accept(new MessageContext(
                             update.getMessage().getChatId(),
