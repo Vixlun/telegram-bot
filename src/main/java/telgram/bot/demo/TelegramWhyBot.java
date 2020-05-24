@@ -3,6 +3,7 @@ package telgram.bot.demo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import telgram.bot.items.AbstractTelegramBot;
 import telgram.bot.items.TelegramBotCommand;
 import telgram.bot.items.UserState;
@@ -17,7 +18,6 @@ import java.util.stream.Stream;
 @Component
 public class TelegramWhyBot extends AbstractTelegramBot {
     private final String START_COMMAND              = "/start";
-    private final String NEW_REQUEST_COMMAND        = "/newRequest";
     private final String FINISH_COMMAND             = "/finish";
     private final String HELP_COMMAND               = "/help";
 
@@ -48,10 +48,11 @@ public class TelegramWhyBot extends AbstractTelegramBot {
             SendMessage message = new SendMessage();
             if(activeUser.get(messageContext.getUserLogin()) == UserState.PLAYING) {
                     message.setText(botResourceBundle.getString("bot.massage.why"))
-                        .setReplyToMessageId(messageContext.getRequest().getMessage().getMessageId());
+                        .setReplyToMessageId(messageContext.getRequest().getMessage().getMessageId())
+                        .setReplyMarkup(new ReplyKeyboardRemove());
             } else {
                 message.setText(botResourceBundle.getString("bot.massage.notActive"));
-                message.setReplyMarkup(createReplyKeyBoard(Arrays.asList(NEW_REQUEST_COMMAND, FINISH_COMMAND, HELP_COMMAND),
+                message.setReplyMarkup(createReplyKeyBoard(Arrays.asList(START_COMMAND, FINISH_COMMAND, HELP_COMMAND),
                                         Boolean.TRUE, Boolean.TRUE));
             }
             message.setChatId(messageContext.getChatId());
@@ -67,24 +68,12 @@ public class TelegramWhyBot extends AbstractTelegramBot {
                 .description(botResourceBundle.getString("bot.command.start.description"))
                 .action(msgContext -> {
                     log.debug("User = '{}' starting work with bot", msgContext.getUserLogin());
-                    activeUser.put(msgContext.getUserLogin(), UserState.NOT_PLAYING);
+                    activeUser.put(msgContext.getUserLogin(), UserState.PLAYING);
                     SendMessage message = new SendMessage()
                             .setText(botResourceBundle.getString("bot.command.start.message"))
                             .setChatId(msgContext.getChatId())
-                            .setReplyMarkup(createReplyKeyBoard(Arrays.asList(NEW_REQUEST_COMMAND, FINISH_COMMAND, HELP_COMMAND),
+                            .setReplyMarkup(createReplyKeyBoard(Arrays.asList(FINISH_COMMAND, HELP_COMMAND),
                                                 Boolean.TRUE, Boolean.TRUE));
-                    sendMessage(message);
-                })
-                .build(),
-        TelegramBotCommand.builder()
-                .name(NEW_REQUEST_COMMAND)
-                .description(botResourceBundle.getString("bot.command.newRequest.description"))
-                .action(msgContext -> {
-                    log.debug("User = '{}' playing with bot", msgContext.getUserLogin());
-                    activeUser.put(msgContext.getUserLogin(), UserState.PLAYING);
-                    SendMessage message = new SendMessage()
-                            .setText(botResourceBundle.getString("bot.command.newRequest.message"))
-                            .setChatId(msgContext.getChatId());
                     sendMessage(message);
                 })
                 .build(),
@@ -95,21 +84,21 @@ public class TelegramWhyBot extends AbstractTelegramBot {
                     SendMessage message = new SendMessage()
                             .setText(botResourceBundle.getString("bot.command.help.message"))
                             .setChatId(msgContext.getChatId());
-                    message.setReplyMarkup(createReplyKeyBoard(Arrays.asList(NEW_REQUEST_COMMAND, FINISH_COMMAND, HELP_COMMAND),
+                    message.setReplyMarkup(createReplyKeyBoard(Arrays.asList(START_COMMAND, FINISH_COMMAND, HELP_COMMAND),
                                                 Boolean.TRUE, Boolean.TRUE));
                     sendMessage(message);
                 })
                 .build(),
         TelegramBotCommand.builder()
                 .name(FINISH_COMMAND)
-                .description(botResourceBundle.getString("bot.command.end.description"))
+                .description(botResourceBundle.getString("bot.command.finish.description"))
                 .action(msgContext -> {
                     log.debug("User = '{}' finishing work with bot", msgContext.getUserLogin());
                     activeUser.remove(msgContext.getUserLogin());
                     SendMessage message = new SendMessage()
-                            .setText(botResourceBundle.getString("bot.command.end.message"))
+                            .setText(botResourceBundle.getString("bot.command.finish.message"))
                             .setChatId(msgContext.getChatId())
-                            .setReplyMarkup(createReplyKeyBoard(Arrays.asList(NEW_REQUEST_COMMAND, FINISH_COMMAND, HELP_COMMAND),
+                            .setReplyMarkup(createReplyKeyBoard(Arrays.asList(START_COMMAND, HELP_COMMAND),
                                                 Boolean.TRUE, Boolean.TRUE));
                     sendMessage(message);
                 })
