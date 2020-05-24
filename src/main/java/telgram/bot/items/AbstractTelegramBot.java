@@ -24,8 +24,6 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingBot impleme
     private String botToken;
     @NonNull
     private String botUserName;
-    @NonNull
-    private Long mainTelegramId;
     private final String COMMAND_PREFIX = "/";
 
     protected Consumer<MessageContext> actionForTextRequest;

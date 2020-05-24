@@ -18,8 +18,6 @@ public class BotConfiguration {
     private String theBotUserName;
     @Value("${bot.token}")
     private String theBotToken;
-    @Value("${main.telegram.id}")
-    private Long theMainTelegramId;
 
     @Autowired
     public BotConfiguration(AbstractTelegramBot ownTelegramBot) {
@@ -33,7 +31,6 @@ public class BotConfiguration {
         try {
             telegramBot.setBotToken(theBotToken);
             telegramBot.setBotUserName(theBotUserName);
-            telegramBot.setMainTelegramId(theMainTelegramId);
             telegramApi.registerBot(telegramBot);
         } catch (Exception ex) {
             log.error("", ex);
