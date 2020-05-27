@@ -46,7 +46,7 @@ public class TelegramWhyBot extends AbstractTelegramBot {
     public void initActionForUserText() {
         actionForTextRequest = (messageContext -> {
             SendMessage message = new SendMessage();
-            if(activeUser.get(messageContext.getUserLogin()) == UserState.PLAYING) {
+            if(activeUser.get(messageContext.getUserId()) == UserState.PLAYING) {
                     message.setText(botResourceBundle.getString("bot.massage.why"))
                         .setReplyToMessageId(messageContext.getRequest().getMessage().getMessageId())
                         .setReplyMarkup(new ReplyKeyboardRemove());
@@ -68,7 +68,7 @@ public class TelegramWhyBot extends AbstractTelegramBot {
                 .description(botResourceBundle.getString("bot.command.start.description"))
                 .action(msgContext -> {
                     log.debug("User = '{}' starting work with bot", msgContext.getUserLogin());
-                    activeUser.put(msgContext.getUserLogin(), UserState.PLAYING);
+                    activeUser.put(msgContext.getUserId(), UserState.PLAYING);
                     SendMessage message = new SendMessage()
                             .setText(botResourceBundle.getString("bot.command.start.message"))
                             .setChatId(msgContext.getChatId())

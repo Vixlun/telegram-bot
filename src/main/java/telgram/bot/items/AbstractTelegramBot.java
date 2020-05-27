@@ -29,7 +29,7 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingBot impleme
     protected Consumer<MessageContext> actionForTextRequest;
     protected Consumer<BadResponse> actionForBadRequest;
     protected Map<String, TelegramBotCommand> commandsMap;
-    protected Map<String, UserState> activeUser; //may be create DB for it
+    protected Map<Integer, UserState> activeUser; //may be create DB for it
     protected ResourceBundle botResourceBundle;
 
     public AbstractTelegramBot() {
@@ -47,6 +47,7 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingBot impleme
             log.debug("Execute command: {}", commandsMap.get(commandName));
             commandsMap.get(commandName).getAction().accept(new MessageContext(
                     request.getMessage().getChatId(),
+                    request.getMessage().getFrom().getId(),
                     request.getMessage().getChat().getUserName(),
                     request));
         } else {
@@ -67,6 +68,7 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingBot impleme
                     log.debug("User = '{}' wrote text: {}", update.getMessage().getChat().getUserName(), update.getMessage().getText());
                     actionForTextRequest.accept(new MessageContext(
                             update.getMessage().getChatId(),
+                            update.getMessage().getFrom().getId(),
                             update.getMessage().getChat().getUserName(),
                             update));
                 }
