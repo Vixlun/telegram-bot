@@ -7,10 +7,10 @@ import org.telegram.telegrambots.ApiContextInitializer;
 
 @SpringBootApplication
 @ComponentScan("telgram.bot")
-public class TelegramBotWhyApplication {
+public class TelegramBotApplication {
 
 	public static void main(String[] args) {
 		ApiContextInitializer.init();
-		SpringApplication.run(TelegramBotWhyApplication.class, args);
+		SpringApplication.run(TelegramBotApplication.class, args);
 	}
 }
