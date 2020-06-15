@@ -2,6 +2,7 @@ package telgram.bot.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -20,7 +21,7 @@ public class BotConfiguration {
     private String theBotToken;
 
     @Autowired
-    public BotConfiguration(AbstractTelegramBot ownTelegramBot) {
+    public BotConfiguration(@Qualifier("random-wishes") AbstractTelegramBot ownTelegramBot) {
         this.telegramBot = ownTelegramBot;
     }
 

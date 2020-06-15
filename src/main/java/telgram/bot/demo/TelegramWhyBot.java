@@ -1,6 +1,7 @@
 package telgram.bot.demo;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Component
+@Qualifier("just-why")
 public class TelegramWhyBot extends AbstractTelegramBot {
     private final String START_COMMAND              = "/start";
     private final String FINISH_COMMAND             = "/finish";
@@ -27,19 +29,7 @@ public class TelegramWhyBot extends AbstractTelegramBot {
 
     @Override
     public void initActionForBadRequest() {
-        actionForBadRequest = (error -> {
-            switch (error.getErrorType()) {
-                case COMMAND_NOT_FOUND:
-                    SendMessage message = new SendMessage()
-                            .setText(botResourceBundle.getString("bot.message.commandNotFound"))
-                            .setReplyToMessageId(error.getRequest().getMessage().getMessageId())
-                            .setChatId(error.getRequest().getMessage().getChatId());
-                    sendMessage(message);
-                    break;
-                default:
-                     log.debug("Internal error. Nothing to send");
-            }
-        });
+
     }
 
     @Override
@@ -53,7 +43,7 @@ public class TelegramWhyBot extends AbstractTelegramBot {
             } else {
                 message.setText(botResourceBundle.getString("bot.massage.notActive"));
                 message.setReplyMarkup(createReplyKeyBoard(Arrays.asList(START_COMMAND, FINISH_COMMAND, HELP_COMMAND),
-                                        Boolean.TRUE, Boolean.TRUE));
+                                        Boolean.TRUE));
             }
             message.setChatId(messageContext.getChatId());
             sendMessage(message);
@@ -73,7 +63,7 @@ public class TelegramWhyBot extends AbstractTelegramBot {
                             .setText(botResourceBundle.getString("bot.command.start.message"))
                             .setChatId(msgContext.getChatId())
                             .setReplyMarkup(createReplyKeyBoard(Arrays.asList(FINISH_COMMAND, HELP_COMMAND),
-                                                Boolean.TRUE, Boolean.TRUE));
+                                                Boolean.TRUE));
                     sendMessage(message);
                 })
                 .build(),
@@ -85,7 +75,7 @@ public class TelegramWhyBot extends AbstractTelegramBot {
                             .setText(botResourceBundle.getString("bot.command.help.message"))
                             .setChatId(msgContext.getChatId());
                     message.setReplyMarkup(createReplyKeyBoard(Arrays.asList(START_COMMAND, FINISH_COMMAND, HELP_COMMAND),
-                                                Boolean.TRUE, Boolean.TRUE));
+                                                Boolean.TRUE));
                     sendMessage(message);
                 })
                 .build(),
@@ -94,12 +84,12 @@ public class TelegramWhyBot extends AbstractTelegramBot {
                 .description(botResourceBundle.getString("bot.command.finish.description"))
                 .action(msgContext -> {
                     log.debug("User = '{}' finishing work with bot", msgContext.getUserLogin());
-                    activeUser.remove(msgContext.getUserLogin());
+                    activeUser.remove(msgContext.getUserId());
                     SendMessage message = new SendMessage()
                             .setText(botResourceBundle.getString("bot.command.finish.message"))
                             .setChatId(msgContext.getChatId())
                             .setReplyMarkup(createReplyKeyBoard(Arrays.asList(START_COMMAND, HELP_COMMAND),
-                                                Boolean.TRUE, Boolean.TRUE));
+                                                Boolean.TRUE));
                     sendMessage(message);
                 })
         .build()).collect(Collectors.toMap(TelegramBotCommand::getName, Function.identity()));

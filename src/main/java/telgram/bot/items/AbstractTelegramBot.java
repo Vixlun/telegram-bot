@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -86,7 +87,7 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingBot impleme
 
     protected void sendMessage(SendMessage message) {
         try {
-            log.debug("Sending message = '{}' for chatId = '{}'", message);
+            log.debug("Sending message = '{}' for chatId = '{}'", message, message.getChatId());
             execute(message);
             log.debug("Successfully send message for chatId = '{}", message.getChatId());
         } catch (TelegramApiException e) {
@@ -94,11 +95,21 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingBot impleme
         }
     }
 
-    protected ReplyKeyboardMarkup createReplyKeyBoard(List<String> commandList, Boolean hideAfterAction, Boolean resizeKeyBoard)
+    protected void sendPhoto(SendPhoto messagePhoto) {
+        try {
+            log.debug("Sending photo = '{}' for chatId = '{}'", messagePhoto.getPhoto().getAttachName(), messagePhoto.getChatId());
+            execute(messagePhoto);
+            log.debug("Successfully send photo for chatId = '{}'", messagePhoto.getChatId());
+        } catch (Exception ex) {
+            log.error("", ex);
+        }
+    }
+
+    protected ReplyKeyboardMarkup createReplyKeyBoard(List<String> commandList, Boolean hideAfterAction)
     {
         ReplyKeyboardMarkup keyBoard = new ReplyKeyboardMarkup();
         keyBoard.setOneTimeKeyboard(hideAfterAction);
-        keyBoard.setResizeKeyboard(resizeKeyBoard);
+        keyBoard.setResizeKeyboard(Boolean.TRUE);
 
         //TODO think about order, may be use sort function
         keyBoard.setKeyboard(commandList.stream().map((rawCommandName) -> {
@@ -116,7 +127,19 @@ public abstract class AbstractTelegramBot extends TelegramLongPollingBot impleme
 
     @Override
     public void initActionForBadRequest() {
-        actionForBadRequest = msg -> log.warn("Logic wasn't implemented");
+        actionForBadRequest = (error -> {
+            switch (error.getErrorType()) {
+                case COMMAND_NOT_FOUND:
+                    SendMessage message = new SendMessage()
+                            .setText(botResourceBundle.getString("bot.message.commandNotFound"))
+                            .setReplyToMessageId(error.getRequest().getMessage().getMessageId())
+                            .setChatId(error.getRequest().getMessage().getChatId());
+                    sendMessage(message);
+                    break;
+                default:
+                    log.debug("Internal error. Nothing to send");
+            }
+        });
     }
 
     @Override
